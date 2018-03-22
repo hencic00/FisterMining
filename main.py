@@ -3,6 +3,8 @@ from tweepy import OAuthHandler
 import sys
 import jsonpickle
 import os
+import datetime
+import time
  
 access_token = '99273089-o5InyP9iT8g4RFIVYqZzl8jN5ghB8QtwqbJy2QCcz'
 access_secret = 'pA7qZPiWLFCYlq1IlWt4QeySXxlsnZVkxEYArafarGLiQ'
@@ -20,10 +22,13 @@ if (not api):
 
 
 
-searchQuery = '#Slovenia'
+searchQuery = '#Software'
 maxTweets = 10000000
 tweetsPerQry = 100
-fName = 'tweets.txt'
+ts = time.time()
+st = datetime.datetime.fromtimestamp(ts).strftime('%d-%m-%Y %H:%M:%S')
+fName = 'tweets_'+str(st)+'.json'
+lastIDfName='lastID.txt'
 
 
 # If results from a specific ID onwards are reqd, set since_id to that ID.
@@ -33,9 +38,13 @@ sinceId = None
 # If results only below a specific ID are, set max_id to that ID.
 # else default to no upper limit, start from the most recent tweet matching the search query.
 max_id = -1L
+if os.path.exists(lastIDfName):
+	with open(lastIDfName, 'r') as lastF:
+		lastID=lastF.read()
+		print ("Getting tweet since last ID: {0}".format(lastID))
+		max_id=int(lastID)
 
 tweetCount = 0
-print("Downloading max {0} tweets".format(maxTweets))
 with open(fName, 'w') as f:
 	while tweetCount < maxTweets:
 		try:
@@ -60,5 +69,8 @@ with open(fName, 'w') as f:
 		except tweepy.TweepError as e:
 			print("some error : " + str(e))
 			break
-
+print("Last tweet ID: {0}".format(max_id))
 print ("Downloaded {0} tweets, Saved to {1}".format(tweetCount, fName))
+with open('lastID.txt', 'w') as file:
+    file.write(str(max_id))
+
