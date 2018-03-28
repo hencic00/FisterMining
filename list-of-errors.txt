@@ -1,0 +1,4 @@
+1. UnicodeEncodeError: 'ascii' codec can't encode character u'\u2026' in position 115: ordinal not in range(128)
+    SOLUTION: print post.text.encode('utf-8') -> problem je samo v printanju v konzolo
+2. ValueError: Expecting , delimiter: 
+    SOLUTION: j = json.loads(r'{...}')
