@@ -5,7 +5,6 @@ import time
 client = textapi.Client("1c5d67bf", "434a38920d4582583ff7572828c077e2")
 
 f = open("tweets/#cryptocurrency/978832770200887296_978716768754683913_20000", "r")
-json.loads
 
 neutral = 0
 negative = 0
