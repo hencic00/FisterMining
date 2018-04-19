@@ -5,7 +5,7 @@ import json
 import progressbar
 import operator
 import re
-
+nltk.download('punkt')
 tknzr = TweetTokenizer()
 
 # fileName = "../tweets/#cryptocurrency/978832770200887296_978716768754683913_20000"
