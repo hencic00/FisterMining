@@ -58,7 +58,7 @@ for fileName in fileNames:
 		print("File does not exist")
 
 # with open('tokens.json', 'w+') as file:
-# 	file.write(json.dumps(sorted(tokenDictionary.items(), key=operator.itemgetter(1))))
+# 	file.write(json.dumps(sorted(tokenDictionary.ites(), key=operator.itemgetter(1))))
 
 counter = 0
 for fileName in categorieNames:
