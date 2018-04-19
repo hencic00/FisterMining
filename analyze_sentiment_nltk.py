@@ -45,10 +45,10 @@ class SentimentAnalyse:
 				sentence=""
 		return sentences
 
-if __name__ == '__main__':
-    testText="This is a test text! I hope it works. If it doesn't work im gonna be sad."
-    sent=SentimentAnalyse()
-    if(sent.downloadLexiconFlag==True):
-    	sent.downloadLexicon()
-    analysedText=sent.analyse(testText)
-    print("Positive: "+str(analysedText[0])+", Neutral: "+str(analysedText[1])+", Negative: "+str(analysedText[2])+", Text Compound Average: "+str(analysedText[3]))
+#if __name__ == '__main__':
+#    testText="This is a test text! I hope it works. If it doesn't work im gonna be sad."
+#    sent=SentimentAnalyse()
+#    if(sent.downloadLexiconFlag==True):
+#    	sent.downloadLexicon()
+#    analysedText=sent.analyse(testText)
+#    print("Positive: "+str(analysedText[0])+", Neutral: "+str(analysedText[1])+", Negative: "+str(analysedText[2])+", Text Compound Average: "+str(analysedText[3]))
