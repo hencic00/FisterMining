@@ -16,7 +16,7 @@ def load_obj(name):
         return pickle.load(f)
 
 
-#get cryptocurrency names and symbols
+""" #get cryptocurrency names and symbols
 response = requests.get(url,data = data)
 if(response.ok):
     jData = json.loads(response.content)
@@ -24,7 +24,7 @@ if(response.ok):
     print("\n")
     
     for crypto in jData:
-        dict[crypto['name'].encode('utf-8')] = crypto['symbol'].encode('utf-8')
+        dict[crypto['name'].encode('utf-8').lower()] = crypto['symbol'].encode('utf-8').lower()
 
 
 #save to file
@@ -34,4 +34,5 @@ save_obj(dict, "cryptos")
 dict = load_obj("cryptos")
 for c in dict:
     print (c)
+    print dict[c] """
 
