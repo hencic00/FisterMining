@@ -14,9 +14,9 @@ def save_obj(obj, name):
 def load_obj(name):
     with open('dictionaries/'+ name + '.pkl', 'rb') as f:
         return pickle.load(f)
+""" 
 
-
-""" #get cryptocurrency names and symbols
+#get cryptocurrency names and symbols
 response = requests.get(url,data = data)
 if(response.ok):
     jData = json.loads(response.content)
@@ -34,5 +34,5 @@ save_obj(dict, "cryptos")
 dict = load_obj("cryptos")
 for c in dict:
     print (c)
-    print dict[c] """
-
+    print dict[c]
+ """

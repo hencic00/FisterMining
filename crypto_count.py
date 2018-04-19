@@ -10,8 +10,9 @@ relative_path = "tweets\979053718241918976_978993246129946624_20000.json"
 filename = os.path.join(dirname, relative_path)
 
 class Tweet:
-    cryptos = []
-    sentiment_compoundSum = 0
+    def __init__(self):
+        self.cryptos = []
+        self.sentiment_compoundSum = 0
 
 
 #load from file
@@ -41,4 +42,4 @@ for tweet in data:
     analysis.append(instance) #TODO: preveri, kako deluje obseg spremenljivk v Pythonu!
 
 
-print analysis[0].cryptos
+print analysis[4].cryptos
