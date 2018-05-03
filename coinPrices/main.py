@@ -100,18 +100,18 @@ def getPrices(forCryptoCurrency, inCurrencies, fromHere, toHere, nmOfPoints):
 	
 
 
-startDate = "1/10/17 16:31:32"
-endDate = "1/04/18 16:31:32"
+# startDate = "1/10/17 16:31:32"
+# endDate = "1/04/18 16:31:32"
 
-startTimeStamp = int(time.mktime(datetime.strptime(startDate, '%d/%m/%y %H:%M:%S').timetuple()))
-endTimeStamp = int(time.mktime(datetime.strptime(endDate, '%d/%m/%y %H:%M:%S').timetuple()))
+# startTimeStamp = int(time.mktime(datetime.strptime(startDate, '%d/%m/%y %H:%M:%S').timetuple()))
+# endTimeStamp = int(time.mktime(datetime.strptime(endDate, '%d/%m/%y %H:%M:%S').timetuple()))
 
-prices = getPrices("BTC", "USD,EUR", startTimeStamp, endTimeStamp, 400)
+prices = getPrices("BTC", "USD,EUR", 1524505328, 1525338975, 400)
 
 prices1 = []
 for price in prices:
 	prices1.append(price["BTC"]["USD"])
-	# print(price)
+	print(price)
 
 fig = plt.figure(figsize = (9, 9))
 subplt = plt.subplot(1, 1, 1)

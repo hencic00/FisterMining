@@ -3,6 +3,7 @@ from tweepy import OAuthHandler, AppAuthHandler
 import sys
 import jsonpickle
 import os
+
  
 access_token = '99273089-o5InyP9iT8g4RFIVYqZzl8jN5ghB8QtwqbJy2QCcz'
 access_secret = 'pA7qZPiWLFCYlq1IlWt4QeySXxlsnZVkxEYArafarGLiQ'
@@ -19,7 +20,7 @@ if (not api):
 	sys.exit(-1)
 
 
-searchQuery = '#cryptocurrency'
+searchQuery = 'cryptocurrency'
 destinationFolder = "tweets/" + searchQuery
 maxTweets = 10000000
 maxTweetsPerFile = 20000
@@ -33,7 +34,7 @@ tweetCountPerFile = 0
 tweets = []
 
 since_id = None
-max_id = None
+max_id = 988488173033611264
 
 while True:
 	while len(tweets) < maxTweetsPerFile:
