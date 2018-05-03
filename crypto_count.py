@@ -13,7 +13,8 @@ relative_path = "tweets\979053718241918976_978993246129946624_20000.json"
 filename = os.path.join(dirname, relative_path)
 
 __main__ = True
-
+dict = []
+analysis = []
 
 class Tweet:
     def __init__(self):
@@ -56,8 +57,7 @@ def AnalizeTweets():
     return analysis
 
 
-def AnalyzeDataChunk(data):
-    analysis = []   
+def AnalyzeDataChunk(data, sent):
     for tweet in data:
         tweet_text = tweet['text'].encode('utf-8').lower()
         wordList = re.sub("[^\w]", " ",  tweet_text).split()  
@@ -70,12 +70,11 @@ def AnalyzeDataChunk(data):
                 instance.cryptos.append(word)
 
         analysis.append(instance)
-
-    return analysis
+    
+    return True
 
 
 def AnalizeTweetsMultiprocessed(numberOfProcesses):
-    analysis = []  # output array
     dict, sent = Init()
 
     data = []
@@ -99,25 +98,21 @@ def AnalizeTweetsMultiprocessed(numberOfProcesses):
             temp_list = []
             counter = 0
 
-    processes = []
+    processes = []  # output array
     for i in range(0, numberOfProcesses):   
 		if(i >= len(process_clusters)):
 			break
-		processes.append(Process(target = AnalyzeDataChunk, args = (process_clusters[i])))
+		processes.append(Process(target = AnalyzeDataChunk, args =  (process_clusters[i], sent, )))
 		processes[i].start()
         
     for k in range(0, len(processes)):
         processes[k].join()
 
 
-    return analysis
+    return processes
 
 
-if(__main__):
-    analysis = AnalizeTweetsMultiprocessed(4)
+if __name__ == "__main__":
+    AnalizeTweetsMultiprocessed(4)
     for i in analysis:
-            if i.cryptos:
-                print i.cryptos 
-                print i.sentiment
-
-
+        print(i)
