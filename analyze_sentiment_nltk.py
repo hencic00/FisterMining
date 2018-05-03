@@ -19,7 +19,7 @@ class SentimentAnalyse:
 		positive=0
 		negative=0
 		neutral=0
-		sid=SentimentIntensityAnalyzer();
+		sid=SentimentIntensityAnalyzer()
 		for sentence in sentences:
 			#print('\r\n'+sentence)
 			ss=sid.polarity_scores(sentence)
