@@ -4,6 +4,7 @@ import nltk
 #from nltk.classify import NaiveBayesClassifier
 #from nltk.corpus import subjectivity
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from multiprocessing import Process, Manager
 from nltk import tokenize
 
 class SentimentAnalyse:
@@ -33,7 +34,10 @@ class SentimentAnalyse:
 			#	print('{0}: {1}, '.format(k, ss[k]))
 			compoundSum+=ss["compound"]
 			counter+=1
-		return [positive, neutral, negative,(compoundSum/counter)]
+		compoundSumTmp=0
+		if(counter>0):
+			compoundSumTmp=compoundSum/counter
+		return [positive, neutral, negative, compoundSumTmp]
 
 	def splitText(self, text):
 		sentences=[]
