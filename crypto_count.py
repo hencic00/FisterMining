@@ -3,29 +3,30 @@ import os
 import codecs
 from collections import namedtuple
 from crypto_dictionary import load_obj
+
+from crypto_dictionary import load_online_dictionary
 import re
 import analyze_sentiment_nltk as ansent
 from multiprocessing import Process, Manager
 import math
+import re
 
 dirname = os.path.dirname(__file__)
 relative_path = "tweets/979053718241918976_978993246129946624_20000.json"
 results_folder_path = "./tweets/sentiment_results/"
 filename = os.path.join(dirname, relative_path)
 
-__main__ = True
-dict = []
-analysis = []
 
 class Tweet:
     def __init__(self):
         self.cryptos = []
         self.sentiment = 0
-        #self.tweet = ""
+        self.tweet_date = ""
 
 
 def Init():
     dict = load_obj("cryptos")  # loads crypto names/symbols dictionary
+    dict = load_online_dictionary()
     sent=ansent.SentimentAnalyse() # loads lexicon for nltk
     sent.downloadLexicon()
     return dict, sent
@@ -58,25 +59,33 @@ def AnalizeTweets():
     return analysis
 
 
-def AnalyzeDataChunk(data, sent, processID):
+def AnalyzeDataChunk(data, dict, sent, processID):
     output = []
+   
     for tweet in data:
-        tweet_text = tweet['text'].encode('utf-8').lower()
-        wordList = re.sub("[^\w]", " ",  tweet_text).split()  
+
+        tweet_text = tweet['text'].encode('utf-8').lower() 
         instance = Tweet()
-        #instance.tweet = tweet_text
+        instance.tweet_date = tweet['created_at'].encode('utf-8')
         instance.sentiment=sent.analyse(tweet_text)[3]
 
-        for word in wordList:
-            if word in dict:
-                instance.cryptos.append(word)
+        for crypto in dict:
+            m = re.match(".*[@# ]" + crypto + "[ ,.!?].*", tweet_text) #search for full crypto name
+            if m:
+                instance.cryptos.append(crypto)
+            else:
+                m = re.match(".*[@# ]" + dict[crypto] + "[ ,.!?].*", tweet_text) #search for acronym
+                if m and len(dict[crypto]) > 2:
+                    instance.cryptos.append(crypto)
 
-        output.append(json.dumps(instance.__dict__, ensure_ascii=False))
-    
+        if len(instance.cryptos) != 0:  # ignores tweets that doesn't mention any of the cryptos from the dictionary
+            output.append(json.dumps(instance.__dict__, ensure_ascii=False))
+            #print((instance.cryptos))
+        
     json_string = json.dumps(output, ensure_ascii=False) 
     filename = results_folder_path + "results" + str(processID)  
     with open(filename, 'w') as outfile:
-       json.dump(json_string, outfile)
+        json.dump(json_string, outfile) 
 
     return True
 
@@ -109,7 +118,7 @@ def AnalizeTweetsMultiprocessed(numberOfProcesses):
     for i in range(0, numberOfProcesses):   
 		if(i >= len(process_clusters)):
 			break
-		processes.append(Process(target = AnalyzeDataChunk, args =  (process_clusters[i], sent, i,)))
+		processes.append(Process(target = AnalyzeDataChunk, args =  (process_clusters[i], dict, sent, i,)))
 		processes[i].start()
         
     for k in range(0, len(processes)):
@@ -122,4 +131,8 @@ def AnalizeTweetsMultiprocessed(numberOfProcesses):
 if __name__ == "__main__":
     AnalizeTweetsMultiprocessed(6)
 
+    #dict = load_obj("cryptos")  # loads crypto names/symbols dictionary
+    #print(dict["revain"])
+
+    #AnalizeTweets()
 

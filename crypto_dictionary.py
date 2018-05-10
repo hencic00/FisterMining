@@ -32,11 +32,10 @@ def load_online_dictionary():
     return dict
 
 
-""" 
 if __name__ == "__main__":
     dict = load_obj("cryptos")
     save_obj(dict, "cryptos")
     for c in dict:
         print (c)
         print dict[c]
-"""
+
