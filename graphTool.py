@@ -1,5 +1,4 @@
 import networkx as nx # full docs: https://networkx.github.io/documentation/stable/tutorial.html
-#
 import matplotlib.pyplot as plt
 
 G = nx.Graph()
