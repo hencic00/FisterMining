@@ -24,7 +24,7 @@ class Tweet:
     def __init__(self):
         self.cryptos = []
         self.sentiment = 0
-        self.tweet_date = ""
+        self.created_at = ""
 
 
 def Init():
@@ -68,7 +68,7 @@ def AnalyzeDataChunk(data, dict, sent, processID):
     for tweet in data:
         tweet_text = tweet['text'].encode('utf-8').lower() 
         instance = Tweet()
-        instance.tweet_date = tweet['created_at'].encode('utf-8')
+        instance.created_at = tweet['created_at'].encode('utf-8')
         instance.sentiment=sent.analyse(tweet_text)[3]
 
         for crypto in dict:
@@ -150,18 +150,18 @@ def getTweetsInTimespanAndAnalyze(startTime, endTime, numberOfSlots, folderLoadP
 if __name__ == "__main__":
     
     #filename = os.path.join(dirname, relative_path)
-    filepath = "C:\Users\Dejan\Desktop\SCHOOL\Povezljivi sistemi in inteligentne storitve\_tweetMiner\FisterMining\tweets\979053718241918976_978993246129946624_20000.json"
+    filepath = "C:/Users/Dejan/Desktop/SCHOOL/Povezljivi sistemi in inteligentne storitve/_tweetMiner/FisterMining/tweets/979053718241918976_978993246129946624_20000.json"
     
     
-    #AnalyzeTweetsMultiprocessed(6, filepath)
+    AnalyzeTweetsMultiprocessed(6, filepath)
 
-    filepath = "C:/Users/Dejan/Desktop/SCHOOL/Povezljivi sistemi in inteligentne storitve/_tweetMiner/FisterMining/tweets/sentiment_results/results0"
-
-
-    data = ReadAnalyzedData(filepath)
+    #filepath = "C:/Users/Dejan/Desktop/SCHOOL/Povezljivi sistemi in inteligentne storitve/_tweetMiner/FisterMining/tweets/sentiment_results/results0"
 
 
-    GetTimeFrameSentimentMedian(data)
+    #data = ReadAnalyzedData(filepath)
+
+
+    #GetTimeFrameSentimentMedian(data)
 
 
     """
