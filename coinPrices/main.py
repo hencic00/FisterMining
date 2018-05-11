@@ -106,15 +106,25 @@ def getPrices(forCryptoCurrency, inCurrencies, fromHere, toHere, nmOfPoints):
 # startTimeStamp = int(time.mktime(datetime.strptime(startDate, '%d/%m/%y %H:%M:%S').timetuple()))
 # endTimeStamp = int(time.mktime(datetime.strptime(endDate, '%d/%m/%y %H:%M:%S').timetuple()))
 
-prices = getPrices("BTC", "USD,EUR", 1524505328, 1525338975, 400)
+prices = getPrices("BTC", "USD,EUR", 1524418928, 1525425375, 12)
 
 prices1 = []
 for price in prices:
 	prices1.append(price["BTC"]["USD"])
-	print(price)
+	# print(price)
 
 fig = plt.figure(figsize = (9, 9))
 subplt = plt.subplot(1, 1, 1)
-subplt.plot(prices1)
+subplt.bar(np.arange(len(prices1)), np.array(prices1))
+
+priceDifferences = []
+for i in range(1, 11):
+	priceDifferences.append(int(abs(prices1[i] - prices1[i - 1])))
+	# print(i - 1)
+print(priceDifferences)
+
+fig = plt.figure(figsize = (9, 9))
+subplt = plt.subplot(1, 1, 1)
+subplt.bar(np.arange(len(priceDifferences)), np.array(priceDifferences))
 
 plt.show()

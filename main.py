@@ -17,7 +17,7 @@ class countAndClassify():
 		self.categoryRegexes = regexes
 		self.categoryNames = names
 
-		self.bins = self.genBinsFromTweets(self.tweetsFolder, 1000)
+		self.bins = self.genBinsFromTweets(self.tweetsFolder, 25)
 
 	def genBinsFromTweets(self, folder, nmOfBins):
 		newestFile = open(folder + "/" + sorted(os.listdir(folder))[-1])
@@ -133,8 +133,8 @@ class countAndClassify():
 categoryRegexes = ["Bitcoin|bitcoin|BITCOIN|btc|BTC|bitc|BITC", "ethereum|ETHEREUM|Ether|ether|ETH|eth", "Ripple|ripple|XRP|xrp"]
 categoryNames = ["Bitcoin", "Ethereum", "Ripple"]
 yes = countAndClassify(categoryRegexes, categoryNames)
-# yes.calculate()
-# yes.resultsToFile("results")
-# yes.readFromFile("results")
-# yes.draw("Bitcoin")
+yes.calculate()
+yes.resultsToFile("results")
+yes.readFromFile("results")
+yes.draw("Bitcoin")
 yes.printInterval()
