@@ -207,17 +207,35 @@ def graphDrawFromFilesBySlots(folderLoadPath, timeslots, timeFrom, timeTo):
     for slt in range(0, timeslots):
     	sentimentPerSlot[slt]=sentimentPosSum[slt]+sentimentNegSum[slt]
 
+    slotTimestamps=[None]*(timeslots)
+    ticks=range(0, timeslots)
+    for slot in range(0, timeslots-1):
+    	slotTimestamps[slot]=str(datetime.datetime.fromtimestamp((fromTimestamp+stepSize*slot)).replace(tzinfo=timezone('CET')).strftime("%d-%m"))
+    slotTimestamps[timeslots-1]=str(datetime.datetime.fromtimestamp(toTimestamp).replace(tzinfo=timezone('CET')).strftime("%d-%m"))
+    x=range(timeslots)
+    width=1
     fig=plt.figure(figsize=(9,9))
-    subplt=plt.subplot(1,1,1)
-    subplt.plot(sentimentPos, color="green")
-    subplt.plot(sentimentNeu, color="blue")
-    subplt.plot(sentimentNeg, color="red")
+    
+    #subplt=plt.subplot(1,1,1)
+    #subplt.plot(sentimentPos, color="green")
+    #subplt.plot(sentimentNeu, color="blue")
+    #subplt.plot(sentimentNeg, color="red")
+
+    plt.bar(x, sentimentPos, width=width*1, color="green", label="Positive Tweets")
+    plt.bar(x, sentimentNeu, width=width*0.6, color="blue", label="Neutral Tweets")
+    plt.bar(x, sentimentNeg, width=width*0.2, color="red", label="Negative Tweets")
+    plt.xticks(ticks, slotTimestamps)
+    plt.xlabel("Date", fontsize=14)
+    plt.ylabel("Ammount of Tweets", fontsize=14)
+    
 
     fig2=plt.figure(figsize=(9,9))
-    x=range(timeslots)
+    
     plt.bar(x, sentimentPerSlot)
-
-    plt.show()   
+    plt.xticks(ticks, slotTimestamps)
+    plt.xlabel("Date", fontsize=14)
+    plt.ylabel("Sentiment score", fontsize=14)
+    plt.show()
 
 
 
@@ -231,7 +249,7 @@ if __name__ == "__main__":
     #AnalyzeTweetsMultiprocessed(6, filepath, ["bitcoin", "ethereum", "btc", "ripple"])
     #ta = TweetAnalyzer()
     #ta.getTweetsMultiprocessed("28/3/2018 17:40:00 +0000", "28/3/2018 17:42:00 +0000", "delete_this/sentiment_results", "tweets/timestamped/testRun1", 5000, 4)
-    #graphDrawFromFilesBySlots("tweets/timestamped/testRun1", 10, "28/3/2018 17:40:00 +0000", "28/3/2018 17:42:00 +0000")
+    graphDrawFromFilesBySlots("tweets/timestamped/testRun1", 10, "28/3/2018 17:40:00 +0000", "28/3/2018 17:42:00 +0000")
     
     #filepath = "C:/Users/Dejan/Desktop/SCHOOL/Povezljivi sistemi in inteligentne storitve/_tweetMiner/FisterMining/tweets/sentiment_results/results0"
 
