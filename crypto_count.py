@@ -14,6 +14,8 @@ import datetime
 from dateutil.parser import parse
 from pytz import timezone
 from tweetAnalyzer import TweetAnalyzer
+import matplotlib.pyplot as plt
+import uuid
 
 dirname = os.path.dirname(__file__)
 relative_path = "tweets/979053718241918976_978993246129946624_20000.json"
@@ -24,7 +26,7 @@ class Tweet:
     def __init__(self):
         self.cryptos = []
         self.sentiment = 0
-        self.tweet_date = ""
+        self.created_at = ""
 
 
 def Init():
@@ -68,7 +70,7 @@ def AnalyzeDataChunk(data, dict, sent, processID):
     for tweet in data:
         tweet_text = tweet['text'].encode('utf-8').lower() 
         instance = Tweet()
-        instance.tweet_date = tweet['created_at'].encode('utf-8')
+        instance.created_at = tweet['created_at'].encode('utf-8')
         instance.sentiment=sent.analyse(tweet_text)[3]
 
         for crypto in dict:
@@ -92,7 +94,33 @@ def AnalyzeDataChunk(data, dict, sent, processID):
     return True
 
 
-def AnalyzeTweetsMultiprocessed(numberOfProcesses, filename):
+def AnalyzeDataChunk2(data, regexList, sent):
+    output = []
+   
+    for tweet in data:
+        tweet_text = tweet['text'].encode('utf-8').lower() 
+        instance = Tweet()
+        instance.created_at = tweet['created_at'].encode('utf-8')
+        instance.sentiment=sent.analyse(tweet_text)[3]
+
+        for crypto in regexList:
+            m = re.match(".*[@# ]" + crypto + "[ ,.!?].*", tweet_text) #search for full crypto name
+            if m:
+                instance.cryptos.append(crypto)
+
+        if len(instance.cryptos) != 0:  # ignores tweets that doesn't mention any of the cryptos from the dictionary
+            output.append(json.dumps(instance.__dict__, ensure_ascii=False))
+            #print((instance.cryptos))
+        
+    json_string = json.dumps(output, ensure_ascii=False) 
+    filename = results_folder_path + "results" + str(uuid.uuid1())  
+    with open(filename, 'w') as outfile:
+        json.dump(json_string, outfile) 
+
+    return True
+
+
+def AnalyzeTweetsMultiprocessed(numberOfProcesses, filename, regexList):
     dict, sent = Init()
 
     data = []
@@ -118,36 +146,124 @@ def AnalyzeTweetsMultiprocessed(numberOfProcesses, filename):
 
     processes = []  # output array
     for i in range(0, numberOfProcesses):   
-		if(i >= len(process_clusters)):
-			break
-		processes.append(Process(target = AnalyzeDataChunk, args =  (process_clusters[i], dict, sent, i,)))
-		processes[i].start()
+        if(i >= len(process_clusters)):
+            break
+        elif len(regexList)==0:
+            processes.append(Process(target = AnalyzeDataChunk, args =  (process_clusters[i], dict, sent, i, )))
+        else:
+            processes.append(Process(target = AnalyzeDataChunk2, args =  (process_clusters[i], regexList, sent, )))
+
+        processes[i].start()
         
     for k in range(0, len(processes)):
         processes[k].join()
 
-
     return processes
 
 
-def ReadAnalyzedData():
-    return
+def ReadAnalyzedData(filename):
+    with open(filename) as json_data:
+        data = json.load(json_data)
+
+    data = json.loads(data)
+    return data
+
+
+def graphDrawFromFilesBySlots(folderLoadPath, timeslots, timeFrom, timeTo, crypto_string):
+    fromTimestamp = int(time.mktime(parse(timeFrom).timetuple()))
+    toTimestamp = int(time.mktime(parse(timeTo).timetuple()))
+    difference=toTimestamp-fromTimestamp
+    stepSize=86400 #difference/timeslots
+    counterArray=[0]*timeslots
+    sentimentPos=[0]*timeslots
+    sentimentNeu=[0]*timeslots
+    sentimentNeg=[0]*timeslots
+    sentimentPosSum=[0]*timeslots
+    sentimentNegSum=[0]*timeslots
+    for filename in os.listdir(folderLoadPath):
+        with open(folderLoadPath+"/"+filename) as file:
+            jsonData=json.load(file)
+            for data in jsonData:
+                cryptos = data["cryptos"]
+                if not crypto_string in cryptos:
+                    continue
+
+                tweetTimestamp=int(time.mktime(parse(data["created_at"]).timetuple()))
+                assignedSlot=int(math.floor((tweetTimestamp-fromTimestamp)/stepSize))
+                if(assignedSlot>=timeslots):
+                    assignedSlot=timeslots-1
+                
+                counterArray[assignedSlot]+=1
+                sentimentValue=data["sentiment"]
+                if(sentimentValue>0):
+                    sentimentPos[assignedSlot]+=1
+                    sentimentPosSum[assignedSlot]+=sentimentValue
+                elif(sentimentValue<0):
+                    sentimentNeg[assignedSlot]+=1
+                    sentimentNegSum[assignedSlot]+=sentimentValue
+                else:
+                    sentimentNeu[assignedSlot]+=1
+
+    sentimentPerSlot=[0]*timeslots
+    for slt in range(0, timeslots):
+    	sentimentPerSlot[slt]=sentimentPosSum[slt]+sentimentNegSum[slt]
+
+    slotTimestamps=[None]*(timeslots)
+    ticks=range(0, timeslots)
+    for slot in range(0, timeslots-1):
+    	slotTimestamps[slot]=str(datetime.datetime.fromtimestamp((fromTimestamp+stepSize*slot)).replace(tzinfo=timezone('CET')).strftime("%d-%m"))
+    slotTimestamps[timeslots-1]=str(datetime.datetime.fromtimestamp(toTimestamp).replace(tzinfo=timezone('CET')).strftime("%d-%m"))
+    x=range(timeslots)
+    width=1
+    fig=plt.figure(figsize=(9,9))
     
-def getTweetsInTimespanAndAnalyze(startTime, endTime, numberOfSlots, folderLoadPath, folderSavePath, saveLimit):
+    #subplt=plt.subplot(1,1,1)
+    #subplt.plot(sentimentPos, color="green")
+    #subplt.plot(sentimentNeu, color="blue")
+    #subplt.plot(sentimentNeg, color="red")
+
+    plt.bar(x, sentimentPos, width=width*1, color="lightgreen", label="Positive Tweets")
+    plt.bar(x, sentimentNeu, width=width*0.6, color="orange", label="Neutral Tweets")
+    plt.bar(x, sentimentNeg, width=width*0.2, color="purple", label="Negative Tweets")
+    plt.xticks(ticks, slotTimestamps, rotation="30")
+    plt.xlabel("Date", fontsize=14)
+    plt.ylabel("Ammount of Tweets", fontsize=14)
     
+
+    fig2=plt.figure(figsize=(9,9))
+    
+    plt.bar(x, sentimentPerSlot)
+    plt.xticks(ticks, slotTimestamps, rotation="30")
+    plt.xlabel("Date", fontsize=14)
+    plt.ylabel("Sentiment score", fontsize=14)
+    plt.show()
+
+
+
 
 if __name__ == "__main__":
-    
-    
 
-    #filename = os.path.join(dirname, relative_path)
-    #AnalyzeTweetsMultiprocessed(6, filename)
+
+    """
+    folder_path = "C:/Users/Dejan/Desktop/SCHOOL/Povezljivi sistemi in inteligentne storitve/_tweetMiner/FisterMining/tweets/cryptocurrency/"
+    filenames = os.listdir(folder_path)
+    for i in range(0, len(filenames)):
+        AnalyzeTweetsMultiprocessed(6, folder_path + "\\" + filenames[i], ["bitcoin", "ethereum", "btc", "eth"])
+    """
+    
+    """
+    ta = TweetAnalyzer()
+    ta.getTweetsMultiprocessed("23/4/2018 00:00:00 +0000", "9/5/2018 23:59:59 +0000", "tweets/sentiment_results", "tweets/timestamped", 5000, 6)
+    """
+    
+    
+    graphDrawFromFilesBySlots("tweets/timestamped", 17, "23/04/2018 00:00:00 +0000", "09/05/2018 23:59:59 +0000", "ethereum")
+    
+    
 
     """
     dict = load_obj("cryptos")  # loads crypto names/symbols dictionary
     for i in dict:
         print(i)
     """
-    
-    #AnalizeTweets()
 

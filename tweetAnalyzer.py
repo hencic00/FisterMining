@@ -155,13 +155,13 @@ class TweetAnalyzer:
 		for i in range(0, numberOfProcesses):
 			if(i >= len(processFileLists)):
 				break
-			processesList.append(Process(target = self.getTweetsWithinTimeSpanAndSave2, args = (startTime, endTime, processFileLists[i], saveFolderPath, limitToSave,)))
-			print("Spawning process " + str(i) + " with " + str(processFileLists[i]))
+			processesList.append(Process(target = self.getTweetsWithinTimeSpanAndSave3, args = (startTime, endTime, processFileLists[i], saveFolderPath, limitToSave,)))
+			#print("Spawning process " + str(i) + " with " + str(processFileLists[i]))
 			processesList[i].start()
 			
 		for k in range(0, len(processesList)):
 			processesList[k].join()
-		print("Multiprocessed time " + str(time.time() - start_time))
+		#print("Multiprocessed time " + str(time.time() - start_time))
 
 	"""
 	parameters: 
@@ -195,17 +195,55 @@ class TweetAnalyzer:
 				maxTimestamp = tweetCreatedAt
 			if(tweetCreatedAt < minTimestamp):
 				minTimestamp = tweetCreatedAt
-		try:
-			readableMinTime=str(datetime.datetime.fromtimestamp(minTimestamp).replace(tzinfo=timezone('UTC')).strftime("%d-%m-%Y_%H:%M:%S_%z"))
-			readableMaxTime=str(datetime.datetime.fromtimestamp(maxTimestamp).replace(tzinfo=timezone('UTC')).strftime("%d-%m-%Y_%H:%M:%S_%z"))
-			fileName = readableMinTime + "_"+ readableMaxTime + "_" + str(tweetCounter)
-			totalFilePath = folderPath + "/" + fileName
-			with open(totalFilePath, "w") as outFile:
-				json.dump(tweetsList, outFile)
-			print(totalFilePath + " saved!")
-		except:
-			print("An error occured while trying to save the file!")
-			return
+		#try:
+		readableMinTime=str(datetime.datetime.fromtimestamp(minTimestamp).replace(tzinfo=timezone('CET')).strftime("%d-%m-%Y_%H-%M-%S_%z"))
+		readableMaxTime=str(datetime.datetime.fromtimestamp(maxTimestamp).replace(tzinfo=timezone('CET')).strftime("%d-%m-%Y_%H-%M-%S_%z"))
+		fileName = readableMinTime + "_"+ readableMaxTime + "_" + str(tweetCounter)
+		totalFilePath = folderPath + "/" + fileName
+		with open(totalFilePath, 'w') as outFile:
+			json.dump(tweetsList, outFile)
+		#print(totalFilePath + " saved!")
+		#except:
+		#	print("An error occured while trying to save the file!")
+		#	return
+
+	def ReadAnalyzedData(self,filename):
+	    with open(filename) as json_data:
+	        data = json.load(json_data)
+
+	    data = json.loads(data)
+	    return data
+
+	def getTweetsWithinTimeSpanAndSave3(self, startTime, endTime, filePaths, saveFolderPath, limitToSave):
+			validTweets = []
+			#lineNumber = 0
+			#try:
+			fromTimestamp = int(time.mktime(parse(startTime).timetuple()))
+			toTimestamp = int(time.mktime(parse(endTime).timetuple()))
+			fileCount = len(filePaths)
+			#bar = progressbar.ProgressBar(maxval = fileCount * 20000, widgets = [progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
+			#bar.start()
+			for filename in filePaths:
+				data=self.ReadAnalyzedData(filename)
+				for tweetEncoded in data:
+					jsonData=json.loads(tweetEncoded)
+					#lineNumber = lineNumber + 1					
+					createdAt = jsonData["created_at"]
+					dt = parse(createdAt)
+					timestamp = int(time.mktime(dt.timetuple()))
+					if(timestamp >= fromTimestamp and timestamp <= toTimestamp):
+						validTweets.append(jsonData)
+						if(len(validTweets) == limitToSave):
+							self.saveTweetsInJsonFormatToFile(validTweets, saveFolderPath)
+							validTweets = []
+					#bar.update(lineNumber)
+			if(len(validTweets) != 0):
+				self.saveTweetsInJsonFormatToFile(validTweets, saveFolderPath)
+			#bar.finish()
+			return True
+			#except:
+			#	print("An error occured! Check the datetime input format 'day/month/year hour:minute:second timezone' example: '28/3/2018 13:00:00 +0000'")
+			#	return False
 
 #Example of class and functions usage
 
