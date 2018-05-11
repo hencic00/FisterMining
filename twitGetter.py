@@ -1,3 +1,4 @@
+
 import tweepy
 from tweepy import OAuthHandler, AppAuthHandler
 import sys
@@ -34,7 +35,7 @@ tweetCountPerFile = 0
 tweets = []
 
 since_id = None
-max_id = 988488173033611264
+max_id = 993666535179812864
 
 while True:
 	while len(tweets) < maxTweetsPerFile:
@@ -46,7 +47,7 @@ while True:
 			max_id = tweets[-1].id - 1
 		print(len(tweets))
 
-	fileName = destinationFolder + "/" + str(tweets[0].id) + "_" + str(tweets[-1].id) + "_" + str(maxTweetsPerFile)
+	fileName = destinationFolder + "1/" + str(tweets[0].id) + "_" + str(tweets[-1].id) + "_" + str(maxTweetsPerFile)
 	f = open(fileName, 'w')
 	
 	

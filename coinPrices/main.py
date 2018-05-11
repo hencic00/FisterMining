@@ -6,6 +6,7 @@ from datetime import datetime
 import numpy as np
 import matplotlib.pyplot as plt
 import json
+import math
 
 def getPrices(forCryptoCurrency, inCurrencies, fromHere, toHere, nmOfPoints):
 	currentTimeStamp = fromHere
@@ -106,25 +107,43 @@ def getPrices(forCryptoCurrency, inCurrencies, fromHere, toHere, nmOfPoints):
 # startTimeStamp = int(time.mktime(datetime.strptime(startDate, '%d/%m/%y %H:%M:%S').timetuple()))
 # endTimeStamp = int(time.mktime(datetime.strptime(endDate, '%d/%m/%y %H:%M:%S').timetuple()))
 
-prices = getPrices("BTC", "USD,EUR", 1524418928, 1525425375, 12)
+prices = getPrices("ETH", "USD,EUR", 1524418928, 1525958465, 18)
+
+times = []
+
+step = int(math.ceil(1525872065 - 1524505328) / 17)
+start = 1524505328
+
+for i in range(0, 18):
+	times.append(datetime.fromtimestamp(float(start)).strftime('%d-%m'))
+
+	start += step
+
+print(times)
+
 
 prices1 = []
 for price in prices:
-	prices1.append(price["BTC"]["USD"])
+	prices1.append(price["ETH"]["USD"])
 	# print(price)
 
-fig = plt.figure(figsize = (9, 9))
+fig = plt.figure(figsize = (14, 9))
 subplt = plt.subplot(1, 1, 1)
-subplt.bar(np.arange(len(prices1)), np.array(prices1))
+subplt.bar(np.arange(len(prices1[1:])), np.array(prices1[1:]))
+
+plt.xticks(np.arange(len(prices1[1:])), times)
 
 priceDifferences = []
-for i in range(1, 11):
+for i in range(1, 18):
 	priceDifferences.append(int(abs(prices1[i] - prices1[i - 1])))
 	# print(i - 1)
 print(priceDifferences)
 
-fig = plt.figure(figsize = (9, 9))
+fig = plt.figure(figsize = (14, 9))
 subplt = plt.subplot(1, 1, 1)
 subplt.bar(np.arange(len(priceDifferences)), np.array(priceDifferences))
+plt.xlabel("Cas v dnevih", fontsize = 16)
+plt.ylabel("Absolutna verdnost dnevne spremembe cene", fontsize = 16)
+plt.xticks(np.arange(len(priceDifferences)), times)
 
 plt.show()

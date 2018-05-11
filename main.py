@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import os
 import json
 import time
@@ -8,6 +11,9 @@ import progressbar
 import numpy as np
 # from io import StringIO
 import matplotlib.pyplot as plt
+from datetime import datetime
+import time
+import math
 
 
 class countAndClassify():
@@ -17,7 +23,9 @@ class countAndClassify():
 		self.categoryRegexes = regexes
 		self.categoryNames = names
 
-		self.bins = self.genBinsFromTweets(self.tweetsFolder, 25)
+		self.bins = self.genBinsFromTweets(self.tweetsFolder, 100)
+		self.nekaj = self.bins
+		
 
 	def genBinsFromTweets(self, folder, nmOfBins):
 		newestFile = open(folder + "/" + sorted(os.listdir(folder))[-1])
@@ -30,8 +38,11 @@ class countAndClassify():
 
 		self.oldestTimeStamp = json.loads(self.oldestTimeStamp)["created_at"]
 
-		self.newestTimeStamp = int(time.mktime(parse(self.newestTimeStamp).timetuple()))
-		self.oldestTimeStamp = int(time.mktime(parse(self.oldestTimeStamp).timetuple()))
+		self.newestTimeStamp = 1525910400
+		self.oldestTimeStamp = 1524528000
+
+		# print(self.oldestTimeStamp)
+		# print(self.newestTimeStamp)
 
 		bins = [0] * nmOfBins
 		step = (self.newestTimeStamp - self.oldestTimeStamp) / (nmOfBins - 1)
@@ -53,10 +64,12 @@ class countAndClassify():
 			return i - 1
 
 	def calculate(self):
-		bar = progressbar.ProgressBar(maxval = 20000*47, widgets = [progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
+		bar = progressbar.ProgressBar(maxval = 20000*76, widgets = [progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
 
 		self.binsForCoins = []
 		self.binsForCoins = [[0 for x in range(len(self.bins))] for y in range(len(self.categoryNames))] 
+
+		# self.maxTimeStamp
 
 		bar.start()
 		lineCounter = 0
@@ -87,15 +100,16 @@ class countAndClassify():
 					timestamp = tweetJson["created_at"]
 					timestamp = int(time.mktime(parse(timestamp).timetuple()))
 
-					indexOfBin = self.mojBisect(self.bins, timestamp)
-					self.binsForCoins[maxMatchesIndex][indexOfBin] += 1
+					if timestamp >= self.oldestTimeStamp and timestamp <= self.newestTimeStamp:
+						indexOfBin = self.mojBisect(self.bins, timestamp)
+						self.binsForCoins[maxMatchesIndex][indexOfBin] += 1
 					
 				bar.update(lineCounter)
 
 				
 		bar.finish()	
 
-		print(self.binsForCoins)
+		# print(self.binsForCoins)
 		# print(test)
 
 	def resultsToFile(self, file):
@@ -115,13 +129,46 @@ class countAndClassify():
 		f = open(file, 'r')
 		text = f.read()
 		self.results = json.loads(text)
-		print(self.results)
+		# print(self.results)
 
 	def draw(self, coin):
 		
-		fig = plt.figure(figsize = (9, 9))
+		fig = plt.figure(figsize = (14, 9))
 		subplt = plt.subplot(1, 1, 1)
-		subplt.plot(self.results[coin])
+
+		times = []
+		for time in self.nekaj:
+			times.append(datetime.fromtimestamp(float(time)).strftime('%d-%m'))
+			
+		# print(times)
+
+		step = int(math.ceil(100 / 17.0))
+		print(step)
+		index = 0
+
+		nekaj = []
+		for i in range(0, 18):
+			# print(index)
+			if index > 100:
+				index = 99
+			nekaj.append(times[index])
+			index += step
+
+		print(nekaj)
+			
+
+		subplt.plot(self.results[coin], linewidth=2)
+		# print(len(self.results[coin]))
+
+		plt.xticks(np.arange(0, 100, step=step), nekaj)
+		plt.xlabel("Cas v dnevih", fontsize = 16)
+		plt.ylabel("Stevilo pojavitev", fontsize = 16)
+		# plt.rcParams.update({'font.size': 20})
+
+		ax = plt.gca()
+		ax.tick_params(axis = 'both', which = 'major', labelsize = 11)
+		ax.tick_params(axis = 'both', which = 'minor', labelsize = 11)
+		# subplt.bar(np.arange(len(self.results[coin])), self.results[coin])
 
 		plt.show()
 
@@ -133,8 +180,9 @@ class countAndClassify():
 categoryRegexes = ["Bitcoin|bitcoin|BITCOIN|btc|BTC|bitc|BITC", "ethereum|ETHEREUM|Ether|ether|ETH|eth", "Ripple|ripple|XRP|xrp"]
 categoryNames = ["Bitcoin", "Ethereum", "Ripple"]
 yes = countAndClassify(categoryRegexes, categoryNames)
-yes.calculate()
-yes.resultsToFile("results")
+# yes.calculate()
+# yes.resultsToFile("results")
+# yes.genBinsFromTweets("tweeets/cryptocurrency", 100)
 yes.readFromFile("results")
-yes.draw("Bitcoin")
+yes.draw("Ethereum")
 yes.printInterval()
