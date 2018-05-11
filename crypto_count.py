@@ -3,7 +3,6 @@ import os
 import codecs
 from collections import namedtuple
 from crypto_dictionary import load_obj
-
 from crypto_dictionary import load_online_dictionary
 import re
 import analyze_sentiment_nltk as ansent
@@ -14,7 +13,6 @@ import re
 dirname = os.path.dirname(__file__)
 relative_path = "tweets/979053718241918976_978993246129946624_20000.json"
 results_folder_path = "./tweets/sentiment_results/"
-filename = os.path.join(dirname, relative_path)
 
 
 class Tweet:
@@ -32,7 +30,7 @@ def Init():
     return dict, sent
 
 
-def AnalizeTweets():
+def AnalyzeTweets():
     dict, sent = Init()
 
     data = []
@@ -63,7 +61,6 @@ def AnalyzeDataChunk(data, dict, sent, processID):
     output = []
    
     for tweet in data:
-
         tweet_text = tweet['text'].encode('utf-8').lower() 
         instance = Tweet()
         instance.tweet_date = tweet['created_at'].encode('utf-8')
@@ -90,7 +87,7 @@ def AnalyzeDataChunk(data, dict, sent, processID):
     return True
 
 
-def AnalizeTweetsMultiprocessed(numberOfProcesses):
+def AnalyzeTweetsMultiprocessed(numberOfProcesses, filename):
     dict, sent = Init()
 
     data = []
@@ -128,11 +125,21 @@ def AnalizeTweetsMultiprocessed(numberOfProcesses):
     return processes
 
 
+def ReadAnalyzedData():
+    return
+    
+
+
 if __name__ == "__main__":
-    AnalizeTweetsMultiprocessed(6)
+    
+    filename = os.path.join(dirname, relative_path)
+    AnalyzeTweetsMultiprocessed(6, filename)
 
-    #dict = load_obj("cryptos")  # loads crypto names/symbols dictionary
-    #print(dict["revain"])
-
+    """
+    dict = load_obj("cryptos")  # loads crypto names/symbols dictionary
+    for i in dict:
+        print(i)
+    """
+    
     #AnalizeTweets()
 
