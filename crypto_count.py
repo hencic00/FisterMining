@@ -222,9 +222,9 @@ def graphDrawFromFilesBySlots(folderLoadPath, timeslots, timeFrom, timeTo, crypt
     #subplt.plot(sentimentNeu, color="blue")
     #subplt.plot(sentimentNeg, color="red")
 
-    plt.bar(x, sentimentPos, width=width*1, color="green", label="Positive Tweets")
-    plt.bar(x, sentimentNeu, width=width*0.6, color="blue", label="Neutral Tweets")
-    plt.bar(x, sentimentNeg, width=width*0.2, color="red", label="Negative Tweets")
+    plt.bar(x, sentimentPos, width=width*1, color="lightgreen", label="Positive Tweets")
+    plt.bar(x, sentimentNeu, width=width*0.6, color="orange", label="Neutral Tweets")
+    plt.bar(x, sentimentNeg, width=width*0.2, color="purple", label="Negative Tweets")
     plt.xticks(ticks, slotTimestamps, rotation="30")
     plt.xlabel("Date", fontsize=14)
     plt.ylabel("Ammount of Tweets", fontsize=14)
@@ -257,7 +257,7 @@ if __name__ == "__main__":
     """
     
     
-    graphDrawFromFilesBySlots("tweets/timestamped", 17, "23/04/2018 00:00:00 +0000", "09/05/2018 23:59:59 +0000", "bitcoin")
+    graphDrawFromFilesBySlots("tweets/timestamped", 17, "23/04/2018 00:00:00 +0000", "09/05/2018 23:59:59 +0000", "ethereum")
     
     
 
