@@ -92,7 +92,33 @@ def AnalyzeDataChunk(data, dict, sent, processID):
     return True
 
 
-def AnalyzeTweetsMultiprocessed(numberOfProcesses, filename):
+def AnalyzeDataChunk2(data, regexList, sent, processID):
+    output = []
+   
+    for tweet in data:
+        tweet_text = tweet['text'].encode('utf-8').lower() 
+        instance = Tweet()
+        instance.created_at = tweet['created_at'].encode('utf-8')
+        instance.sentiment=sent.analyse(tweet_text)[3]
+
+        for crypto in regexList:
+            m = re.match(".*[@# ]" + crypto + "[ ,.!?].*", tweet_text) #search for full crypto name
+            if m:
+                instance.cryptos.append(crypto)
+
+        if len(instance.cryptos) != 0:  # ignores tweets that doesn't mention any of the cryptos from the dictionary
+            output.append(json.dumps(instance.__dict__, ensure_ascii=False))
+            #print((instance.cryptos))
+        
+    json_string = json.dumps(output, ensure_ascii=False) 
+    filename = results_folder_path + "results" + str(processID)  
+    with open(filename, 'w') as outfile:
+        json.dump(json_string, outfile) 
+
+    return True
+
+
+def AnalyzeTweetsMultiprocessed(numberOfProcesses, filename, regexList):
     dict, sent = Init()
 
     data = []
@@ -118,14 +144,17 @@ def AnalyzeTweetsMultiprocessed(numberOfProcesses, filename):
 
     processes = []  # output array
     for i in range(0, numberOfProcesses):   
-		if(i >= len(process_clusters)):
-			break
-		processes.append(Process(target = AnalyzeDataChunk, args =  (process_clusters[i], dict, sent, i,)))
-		processes[i].start()
+        if(i >= len(process_clusters)):
+            break
+        elif len(regexList)==0:
+            processes.append(Process(target = AnalyzeDataChunk, args =  (process_clusters[i], dict, sent, i, )))
+        else:
+            processes.append(Process(target = AnalyzeDataChunk2, args =  (process_clusters[i], regexList, sent, i, )))
+
+        processes[i].start()
         
     for k in range(0, len(processes)):
         processes[k].join()
-
 
     return processes
 
@@ -153,14 +182,17 @@ if __name__ == "__main__":
     filepath = "C:/Users/Dejan/Desktop/SCHOOL/Povezljivi sistemi in inteligentne storitve/_tweetMiner/FisterMining/tweets/979053718241918976_978993246129946624_20000.json"
     
     
-    #AnalyzeTweetsMultiprocessed(6, filepath)
+    AnalyzeTweetsMultiprocessed(6, filepath, ["bitcoin", "ethereum", "btc", "ripple"])
 
     #filepath = "C:/Users/Dejan/Desktop/SCHOOL/Povezljivi sistemi in inteligentne storitve/_tweetMiner/FisterMining/tweets/sentiment_results/results0"
+
+    """
 
     dict = load_obj("cryptos")  # loads crypto names/symbols dictionary
     for i in dict:
         print(i)
 
+    """
 
     #data = ReadAnalyzedData(filepath)
 
