@@ -153,9 +153,13 @@ if __name__ == "__main__":
     filepath = "C:/Users/Dejan/Desktop/SCHOOL/Povezljivi sistemi in inteligentne storitve/_tweetMiner/FisterMining/tweets/979053718241918976_978993246129946624_20000.json"
     
     
-    AnalyzeTweetsMultiprocessed(6, filepath)
+    #AnalyzeTweetsMultiprocessed(6, filepath)
 
     #filepath = "C:/Users/Dejan/Desktop/SCHOOL/Povezljivi sistemi in inteligentne storitve/_tweetMiner/FisterMining/tweets/sentiment_results/results0"
+
+    dict = load_obj("cryptos")  # loads crypto names/symbols dictionary
+    for i in dict:
+        print(i)
 
 
     #data = ReadAnalyzedData(filepath)
