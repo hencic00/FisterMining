@@ -15,6 +15,7 @@ from dateutil.parser import parse
 from pytz import timezone
 from tweetAnalyzer import TweetAnalyzer
 import matplotlib.pyplot as plt
+import uuid
 
 dirname = os.path.dirname(__file__)
 relative_path = "tweets/979053718241918976_978993246129946624_20000.json"
@@ -93,7 +94,7 @@ def AnalyzeDataChunk(data, dict, sent, processID):
     return True
 
 
-def AnalyzeDataChunk2(data, regexList, sent, processID):
+def AnalyzeDataChunk2(data, regexList, sent):
     output = []
    
     for tweet in data:
@@ -112,7 +113,7 @@ def AnalyzeDataChunk2(data, regexList, sent, processID):
             #print((instance.cryptos))
         
     json_string = json.dumps(output, ensure_ascii=False) 
-    filename = results_folder_path + "results" + str(processID)  
+    filename = results_folder_path + "results" + str(uuid.uuid1())  
     with open(filename, 'w') as outfile:
         json.dump(json_string, outfile) 
 
@@ -150,7 +151,7 @@ def AnalyzeTweetsMultiprocessed(numberOfProcesses, filename, regexList):
         elif len(regexList)==0:
             processes.append(Process(target = AnalyzeDataChunk, args =  (process_clusters[i], dict, sent, i, )))
         else:
-            processes.append(Process(target = AnalyzeDataChunk2, args =  (process_clusters[i], regexList, sent, i, )))
+            processes.append(Process(target = AnalyzeDataChunk2, args =  (process_clusters[i], regexList, sent, )))
 
         processes[i].start()
         
@@ -168,15 +169,11 @@ def ReadAnalyzedData(filename):
     return data
 
 
-def GetTimeFrameSentimentMedian(data):
-    return
-
-
-def graphDrawFromFilesBySlots(folderLoadPath, timeslots, timeFrom, timeTo):
+def graphDrawFromFilesBySlots(folderLoadPath, timeslots, timeFrom, timeTo, crypto_string):
     fromTimestamp = int(time.mktime(parse(timeFrom).timetuple()))
     toTimestamp = int(time.mktime(parse(timeTo).timetuple()))
     difference=toTimestamp-fromTimestamp
-    stepSize=difference/timeslots
+    stepSize=86400 #difference/timeslots
     counterArray=[0]*timeslots
     sentimentPos=[0]*timeslots
     sentimentNeu=[0]*timeslots
@@ -187,6 +184,10 @@ def graphDrawFromFilesBySlots(folderLoadPath, timeslots, timeFrom, timeTo):
         with open(folderLoadPath+"/"+filename) as file:
             jsonData=json.load(file)
             for data in jsonData:
+                cryptos = data["cryptos"]
+                if not crypto_string in cryptos:
+                    continue
+
                 tweetTimestamp=int(time.mktime(parse(data["created_at"]).timetuple()))
                 assignedSlot=int(math.floor((tweetTimestamp-fromTimestamp)/stepSize))
                 if(assignedSlot>=timeslots):
@@ -224,7 +225,7 @@ def graphDrawFromFilesBySlots(folderLoadPath, timeslots, timeFrom, timeTo):
     plt.bar(x, sentimentPos, width=width*1, color="green", label="Positive Tweets")
     plt.bar(x, sentimentNeu, width=width*0.6, color="blue", label="Neutral Tweets")
     plt.bar(x, sentimentNeg, width=width*0.2, color="red", label="Negative Tweets")
-    plt.xticks(ticks, slotTimestamps)
+    plt.xticks(ticks, slotTimestamps, rotation="30")
     plt.xlabel("Date", fontsize=14)
     plt.ylabel("Ammount of Tweets", fontsize=14)
     
@@ -232,7 +233,7 @@ def graphDrawFromFilesBySlots(folderLoadPath, timeslots, timeFrom, timeTo):
     fig2=plt.figure(figsize=(9,9))
     
     plt.bar(x, sentimentPerSlot)
-    plt.xticks(ticks, slotTimestamps)
+    plt.xticks(ticks, slotTimestamps, rotation="30")
     plt.xlabel("Date", fontsize=14)
     plt.ylabel("Sentiment score", fontsize=14)
     plt.show()
@@ -241,37 +242,28 @@ def graphDrawFromFilesBySlots(folderLoadPath, timeslots, timeFrom, timeTo):
 
 
 if __name__ == "__main__":
-    
-    #filename = os.path.join(dirname, relative_path)
-    filepath = "C:/Users/Dejan/Desktop/SCHOOL/Povezljivi sistemi in inteligentne storitve/_tweetMiner/FisterMining/tweets/979053718241918976_978993246129946624_20000.json"
-    
-    
-    #AnalyzeTweetsMultiprocessed(6, filepath, ["bitcoin", "ethereum", "btc", "ripple"])
-    #ta = TweetAnalyzer()
-    #ta.getTweetsMultiprocessed("28/3/2018 17:40:00 +0000", "28/3/2018 17:42:00 +0000", "delete_this/sentiment_results", "tweets/timestamped/testRun1", 5000, 4)
-    graphDrawFromFilesBySlots("tweets/timestamped/testRun1", 10, "28/3/2018 17:40:00 +0000", "28/3/2018 17:42:00 +0000")
-    
-    #filepath = "C:/Users/Dejan/Desktop/SCHOOL/Povezljivi sistemi in inteligentne storitve/_tweetMiner/FisterMining/tweets/sentiment_results/results0"
+
 
     """
-
-    dict = load_obj("cryptos")  # loads crypto names/symbols dictionary
-    for i in dict:
-        print(i)
-
+    folder_path = "C:/Users/Dejan/Desktop/SCHOOL/Povezljivi sistemi in inteligentne storitve/_tweetMiner/FisterMining/tweets/cryptocurrency/"
+    filenames = os.listdir(folder_path)
+    for i in range(0, len(filenames)):
+        AnalyzeTweetsMultiprocessed(6, folder_path + "\\" + filenames[i], ["bitcoin", "ethereum", "btc", "eth"])
     """
-
-    #data = ReadAnalyzedData(filepath)
-
-
-    #GetTimeFrameSentimentMedian(data)
-
+    
+    """
+    ta = TweetAnalyzer()
+    ta.getTweetsMultiprocessed("23/4/2018 00:00:00 +0000", "9/5/2018 23:59:59 +0000", "tweets/sentiment_results", "tweets/timestamped", 5000, 6)
+    """
+    
+    
+    graphDrawFromFilesBySlots("tweets/timestamped", 17, "23/04/2018 00:00:00 +0000", "09/05/2018 23:59:59 +0000", "bitcoin")
+    
+    
 
     """
     dict = load_obj("cryptos")  # loads crypto names/symbols dictionary
     for i in dict:
         print(i)
     """
-    
-    #AnalizeTweets()
 

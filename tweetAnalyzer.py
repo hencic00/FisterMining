@@ -156,12 +156,12 @@ class TweetAnalyzer:
 			if(i >= len(processFileLists)):
 				break
 			processesList.append(Process(target = self.getTweetsWithinTimeSpanAndSave3, args = (startTime, endTime, processFileLists[i], saveFolderPath, limitToSave,)))
-			print("Spawning process " + str(i) + " with " + str(processFileLists[i]))
+			#print("Spawning process " + str(i) + " with " + str(processFileLists[i]))
 			processesList[i].start()
 			
 		for k in range(0, len(processesList)):
 			processesList[k].join()
-		print("Multiprocessed time " + str(time.time() - start_time))
+		#print("Multiprocessed time " + str(time.time() - start_time))
 
 	"""
 	parameters: 
@@ -196,13 +196,13 @@ class TweetAnalyzer:
 			if(tweetCreatedAt < minTimestamp):
 				minTimestamp = tweetCreatedAt
 		#try:
-		readableMinTime=str(datetime.datetime.fromtimestamp(minTimestamp).replace(tzinfo=timezone('CET')).strftime("%d-%m-%Y_%H:%M:%S_%z"))
-		readableMaxTime=str(datetime.datetime.fromtimestamp(maxTimestamp).replace(tzinfo=timezone('CET')).strftime("%d-%m-%Y_%H:%M:%S_%z"))
+		readableMinTime=str(datetime.datetime.fromtimestamp(minTimestamp).replace(tzinfo=timezone('CET')).strftime("%d-%m-%Y_%H-%M-%S_%z"))
+		readableMaxTime=str(datetime.datetime.fromtimestamp(maxTimestamp).replace(tzinfo=timezone('CET')).strftime("%d-%m-%Y_%H-%M-%S_%z"))
 		fileName = readableMinTime + "_"+ readableMaxTime + "_" + str(tweetCounter)
 		totalFilePath = folderPath + "/" + fileName
-		with open(totalFilePath, "w") as outFile:
+		with open(totalFilePath, 'w') as outFile:
 			json.dump(tweetsList, outFile)
-		print(totalFilePath + " saved!")
+		#print(totalFilePath + " saved!")
 		#except:
 		#	print("An error occured while trying to save the file!")
 		#	return
