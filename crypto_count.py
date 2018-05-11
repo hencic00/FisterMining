@@ -9,6 +9,11 @@ import analyze_sentiment_nltk as ansent
 from multiprocessing import Process, Manager
 import math
 import re
+import time
+import datetime
+from dateutil.parser import parse
+from pytz import timezone
+from tweetAnalyzer import TweetAnalyzer
 
 dirname = os.path.dirname(__file__)
 relative_path = "tweets/979053718241918976_978993246129946624_20000.json"
@@ -128,12 +133,15 @@ def AnalyzeTweetsMultiprocessed(numberOfProcesses, filename):
 def ReadAnalyzedData():
     return
     
-
+def getTweetsInTimespanAndAnalyze(startTime, endTime, numberOfSlots, folderLoadPath, folderSavePath, saveLimit):
+    
 
 if __name__ == "__main__":
     
-    filename = os.path.join(dirname, relative_path)
-    AnalyzeTweetsMultiprocessed(6, filename)
+    
+
+    #filename = os.path.join(dirname, relative_path)
+    #AnalyzeTweetsMultiprocessed(6, filename)
 
     """
     dict = load_obj("cryptos")  # loads crypto names/symbols dictionary
