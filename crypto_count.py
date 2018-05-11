@@ -14,6 +14,7 @@ import datetime
 from dateutil.parser import parse
 from pytz import timezone
 from tweetAnalyzer import TweetAnalyzer
+import matplotlib.pyplot as plt
 
 dirname = os.path.dirname(__file__)
 relative_path = "tweets/979053718241918976_978993246129946624_20000.json"
@@ -171,6 +172,57 @@ def GetTimeFrameSentimentMedian(data):
     return
 
 
+def graphDrawFromFilesBySlots(folderLoadPath, timeslots, timeFrom, timeTo):
+    fromTimestamp = int(time.mktime(parse(timeFrom).timetuple()))
+    toTimestamp = int(time.mktime(parse(timeTo).timetuple()))
+    difference=toTimestamp-fromTimestamp
+    stepSize=difference/timeslots
+    counterArray=[0]*timeslots
+    sentimentPos=[0]*timeslots
+    sentimentNeu=[0]*timeslots
+    sentimentNeg=[0]*timeslots
+    sentimentPosSum=[0]*timeslots
+    sentimentNegSum=[0]*timeslots
+    for filename in os.listdir(folderLoadPath):
+        with open(folderLoadPath+"/"+filename) as file:
+            jsonData=json.load(file)
+            for data in jsonData:
+                tweetTimestamp=int(time.mktime(parse(data["created_at"]).timetuple()))
+                assignedSlot=int(math.floor((tweetTimestamp-fromTimestamp)/stepSize))
+                if(assignedSlot>=10):
+                    assignedSlot=9
+                
+                counterArray[assignedSlot]+=1
+                sentimentValue=data["sentiment"]
+                if(sentimentValue>0):
+                    sentimentPos[assignedSlot]+=1
+                    sentimentPosSum[assignedSlot]+=sentimentValue
+                elif(sentimentValue<0):
+                    sentimentNeg[assignedSlot]+=1
+                    sentimentNegSum[assignedSlot]+=sentimentValue
+                else:
+                    sentimentNeu[assignedSlot]+=1
+
+    averagePerSlotPos=[0]*timeslots
+    averagePerSlotNeg=[0]*timeslots
+    for slt in range(0, timeslots):
+        if(sentimentNeg[slt]!=0):
+            averagePerSlotNeg[slt]=sentimentNegSum[slt]/sentimentNeg[slt]
+        else:
+            averagePerSlotNeg[slt]=0
+        if(sentimentPos[slt]!=0):
+            averagePerSlotPos[slt]=sentimentPosSum[slt]/sentimentPos[slt]
+        else:
+            averagePerSlotPos[slt]=0
+
+    fig=plt.figure(figsize=(9,9))
+    subplt=plt.subplot(1,1,1)
+    subplt.plot(sentimentPos, color="green")
+    subplt.plot(sentimentNeu, color="blue")
+    subplt.plot(sentimentNeg, color="red")
+
+    plt.show()              
+
 
 if __name__ == "__main__":
     
@@ -179,9 +231,9 @@ if __name__ == "__main__":
     
     
     #AnalyzeTweetsMultiprocessed(6, filepath, ["bitcoin", "ethereum", "btc", "ripple"])
-    ta = TweetAnalyzer()
-    ta.getTweetsMultiprocessed("28/3/2018 17:40:00 +0000", "28/3/2018 17:42:00 +0000", "delete_this/sentiment_results", "tweets/timestamped/testRun1", 5000, 4)
-
+    #ta = TweetAnalyzer()
+    #ta.getTweetsMultiprocessed("28/3/2018 17:40:00 +0000", "28/3/2018 17:42:00 +0000", "delete_this/sentiment_results", "tweets/timestamped/testRun1", 5000, 4)
+    #graphDrawFromFilesBySlots("tweets/timestamped/testRun1", 10, "28/3/2018 17:40:00 +0000", "28/3/2018 17:42:00 +0000")
     #filepath = "C:/Users/Dejan/Desktop/SCHOOL/Povezljivi sistemi in inteligentne storitve/_tweetMiner/FisterMining/tweets/sentiment_results/results0"
 
     """
