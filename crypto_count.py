@@ -171,10 +171,6 @@ def GetTimeFrameSentimentMedian(data):
     return
 
 
-    
-def getTweetsInTimespanAndAnalyze(startTime, endTime, numberOfSlots, folderLoadPath, folderSavePath, saveLimit):
-    return
-
 
 if __name__ == "__main__":
     
@@ -182,7 +178,9 @@ if __name__ == "__main__":
     filepath = "C:/Users/Dejan/Desktop/SCHOOL/Povezljivi sistemi in inteligentne storitve/_tweetMiner/FisterMining/tweets/979053718241918976_978993246129946624_20000.json"
     
     
-    AnalyzeTweetsMultiprocessed(6, filepath, ["bitcoin", "ethereum", "btc", "ripple"])
+    #AnalyzeTweetsMultiprocessed(6, filepath, ["bitcoin", "ethereum", "btc", "ripple"])
+    ta = TweetAnalyzer()
+    ta.getTweetsMultiprocessed("28/3/2018 17:40:00 +0000", "28/3/2018 17:42:00 +0000", "delete_this/sentiment_results", "tweets/timestamped/testRun1", 5000, 4)
 
     #filepath = "C:/Users/Dejan/Desktop/SCHOOL/Povezljivi sistemi in inteligentne storitve/_tweetMiner/FisterMining/tweets/sentiment_results/results0"
 
