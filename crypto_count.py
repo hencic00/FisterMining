@@ -130,18 +130,39 @@ def AnalyzeTweetsMultiprocessed(numberOfProcesses, filename):
     return processes
 
 
-def ReadAnalyzedData():
+def ReadAnalyzedData(filename):
+    with open(filename) as json_data:
+        data = json.load(json_data)
+
+    data = json.loads(data)
+    return data
+
+
+def GetTimeFrameSentimentMedian(data):
     return
+
+
     
 def getTweetsInTimespanAndAnalyze(startTime, endTime, numberOfSlots, folderLoadPath, folderSavePath, saveLimit):
-    
+    return
+
 
 if __name__ == "__main__":
     
-    
-
     #filename = os.path.join(dirname, relative_path)
-    #AnalyzeTweetsMultiprocessed(6, filename)
+    filepath = "C:\Users\Dejan\Desktop\SCHOOL\Povezljivi sistemi in inteligentne storitve\_tweetMiner\FisterMining\tweets\979053718241918976_978993246129946624_20000.json"
+    
+    
+    #AnalyzeTweetsMultiprocessed(6, filepath)
+
+    filepath = "C:/Users/Dejan/Desktop/SCHOOL/Povezljivi sistemi in inteligentne storitve/_tweetMiner/FisterMining/tweets/sentiment_results/results0"
+
+
+    data = ReadAnalyzedData(filepath)
+
+
+    GetTimeFrameSentimentMedian(data)
+
 
     """
     dict = load_obj("cryptos")  # loads crypto names/symbols dictionary
